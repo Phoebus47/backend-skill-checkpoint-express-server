@@ -3,6 +3,246 @@ import connectionPool from "../utils/db.mjs";
 
 const questionRouter = Router();
 
+/**
+ * @swagger
+ * /questions:
+ *   get:
+ *     summary: Get all questions
+ *     responses:
+ *       200:
+ *         description: A list of questions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       title:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       category:
+ *                         type: string
+ *             examples:
+ *               example1:
+ *                 value:
+ *                   data:
+ *                     - id: 1
+ *                       title: "What is Node.js?"
+ *                       description: "A question about Node.js."
+ *                       category: "Programming"
+ *                     - id: 2
+ *                       title: "What is Express?"
+ *                       description: "A question about Express framework."
+ *                       category: "Web Development"
+ */
+/**
+ * @swagger
+ * /questions/{questionId}:
+ *   get:
+ *     summary: Get a question by ID
+ *     parameters:
+ *       - name: questionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the question to retrieve
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: A single question object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     title:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                     category:
+ *                       type: string
+ */
+
+/**
+ * @swagger
+ * /questions:
+ *   post:
+ *     summary: Create a new question
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *             required:
+ *               - title
+ *               - description
+ *               - category
+ *           examples:
+ *             example1:
+ *               value:
+ *                 title: "What is Node.js?"
+ *                 description: "A question about Node.js."
+ *                 category: "Programming"
+ *     responses:
+ *       201:
+ *         description: Question created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             examples:
+ *               example1:
+ *                 value:
+ *                   message: "Question created successfully"
+ *       400:
+ *         description: Invalid request data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Unable to create question
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+
+/**
+ * @swagger
+ * /questions/{questionId}:
+ *   put:
+ *     summary: Update a question by ID
+ *     parameters:
+ *       - name: questionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the question to update
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *             required:
+ *               - title
+ *               - description
+ *               - category
+ *     responses:
+ *       200:
+ *         description: Question updated successfully
+ *       400:
+ *         description: Invalid request data
+ *       404:
+ *         description: Question not found
+ *       500:
+ *         description: Unable to fetch question
+ */
+
+/**
+ * @swagger
+ * /questions/{questionId}:
+ *   delete:
+ *     summary: Delete a question by ID
+ *     parameters:
+ *       - name: questionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the question to delete
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Question and related answers deleted successfully
+ *       404:
+ *         description: Question not found
+ *       500:
+ *         description: Unable to delete question
+ */
+
+/**
+ * @swagger
+ * /questions/search:
+ *   get:
+ *     summary: Search for questions by category or title
+ *     parameters:
+ *       - name: category
+ *         in: query
+ *         required: false
+ *         description: The category to search for
+ *         schema:
+ *           type: string
+ *       - name: title
+ *         in: query
+ *         required: false
+ *         description: The title to search for
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: A list of matching questions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       title:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       category:
+ *                         type: string
+ *       400:
+ *         description: Invalid search parameters
+ *       500:
+ *         description: Unable to fetch questions
+ */
+
 questionRouter.get("/", async (req, res) => {
   let result;
   try {

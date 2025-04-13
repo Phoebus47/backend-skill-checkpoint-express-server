@@ -3,6 +3,77 @@ import connectionPool from "../utils/db.mjs";
 
 const voteRouter = Router();
 
+/**
+ * @swagger
+ * /questions/{questionId}/vote:
+ *   post:
+ *     summary: Vote on a question
+ *     parameters:
+ *       - name: questionId
+ *         in: path
+ *         required: true
+ *         description: The ID of the question to vote on
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               vote:
+ *                 type: integer
+ *                 enum: [1, -1]
+ *             required:
+ *               - vote
+ *           examples:
+ *             example1:
+ *               value:
+ *                 vote: 1
+ *     responses:
+ *       200:
+ *         description: Vote on the question has been recorded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             examples:
+ *               example1:
+ *                 value:
+ *                   message: "Vote on the question has been recorded successfully."
+ *       400:
+ *         description: Invalid vote value
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Question not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Unable to vote question
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+
 voteRouter.post("/questions/:questionId/vote", async (req, res) => {
   const { questionId } = req.params;
   const { vote } = req.body;
@@ -30,6 +101,77 @@ voteRouter.post("/questions/:questionId/vote", async (req, res) => {
     return res.status(500).json({ message: "Unable to vote question." });
   }
 });
+
+/**
+ * @swagger
+ * /answers/{answerId}/vote:
+ *   post:
+ *     summary: Vote on an answer
+ *     parameters:
+ *       - name: answerId
+ *         in: path
+ *         required: true
+ *         description: The ID of the answer to vote on
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               vote:
+ *                 type: integer
+ *                 enum: [1, -1]
+ *             required:
+ *               - vote
+ *           examples:
+ *             example1:
+ *               value:
+ *                 vote: -1
+ *     responses:
+ *       200:
+ *         description: Vote on the answer has been recorded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *             examples:
+ *               example1:
+ *                 value:
+ *                   message: "Vote on the answer has been recorded successfully."
+ *       400:
+ *         description: Invalid vote value
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       404:
+ *         description: Answer not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       500:
+ *         description: Unable to vote answer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
 
 voteRouter.post("/answers/:answerId/vote", async (req, res) => {
   const { answerId } = req.params;
