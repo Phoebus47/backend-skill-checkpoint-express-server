@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { connectionPool } from "../db.js";
+import connectionPool from "../utils/db.mjs";
 
 const questionRouter = Router();
 
