@@ -4,6 +4,7 @@ import swaggerSpec from "./utils/swaggerConfig.mjs";
 import questionRouter from "./routers/questionsRouter.mjs";
 import answerRouter from "./routers/answersRouter.mjs";
 import voteRouter from "./routers/voteRouter.mjs";
+import errorHandler from "./middlewares/errorHandler.mjs";
 
 const app = express();
 const port = 4000;
@@ -19,6 +20,8 @@ app.get("/test", (req, res) => {
 app.use("/questions", questionRouter);
 app.use("/questions", answerRouter);
 app.use("/", voteRouter);
+
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server is running at ${port}`);
