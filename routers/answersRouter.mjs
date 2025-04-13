@@ -6,7 +6,7 @@ const answerRouter = Router();
 answerRouter.post("/:questionId/answers", async (req, res) => {
   const { questionId } = req.params;
   const { content } = req.body;
-  if (!content) {
+  if (!content || content.length > 300) {
     return res.status(400).json({ message: "Invalid request data." });
   }
   try {
