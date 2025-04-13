@@ -69,20 +69,27 @@ questionRouter.put("/:questionId", async (req, res) => {
 
 questionRouter.delete("/:questionId", async (req, res) => {
   const { questionId } = req.params;
-  let result;
   try {
-    result = await connectionPool.query("DELETE FROM questions WHERE id = $1", [
+    await connectionPool.query("BEGIN");
+    await connectionPool.query("DELETE FROM answers WHERE question_id = $1", [
       questionId,
     ]);
+    const result = await connectionPool.query(
+      "DELETE FROM questions WHERE id = $1 RETURNING *",
+      [questionId]
+    );
     if (result.rowCount === 0) {
+      await connectionPool.query("ROLLBACK");
       return res.status(404).json({ message: "Question not found." });
     }
-  } catch {
+    await connectionPool.query("COMMIT");
+    return res
+      .status(200)
+      .json({ message: "Question and related answers deleted successfully." });
+  } catch (error) {
+    await connectionPool.query("ROLLBACK");
     return res.status(500).json({ message: "Unable to delete question." });
   }
-  return res
-    .status(200)
-    .json({ message: "Question post has been deleted successfully." });
 });
 
 questionRouter.get("/search", async (req, res) => {
