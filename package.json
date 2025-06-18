@@ -1,20 +1,33 @@
 {
-  "name": "express-server-template",
+  "name": "quora-mock-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.mjs",
+  "description": "Full-stack Quora Mock API",
+  "main": "api/index.js",
+  "type": "module",
   "scripts": {
-    "start": "nodemon app.mjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node api/index.js",
+    "dev": "nodemon app.mjs",
+    "test": "jest"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "express",
+    "api",
+    "quora",
+    "mock",
+    "fullstack"
+  ],
+  "author": "Thanakrit",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.21.2",
-    "nodemon": "^3.1.9",
     "pg": "^8.14.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^6.3.3"
   }
 }
