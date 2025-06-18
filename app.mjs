@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+// โหลด .env.local แทน .env
+dotenv.config({ path: '.env.local' });
+
 import express from "express";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
