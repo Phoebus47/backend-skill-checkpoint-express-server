@@ -246,9 +246,20 @@ const questionRouter = Router();
 questionRouter.get("/", async (req, res) => {
   let result;
   try {
-    result = await connectionPool.query("SELECT * FROM questions");
-  } catch {
-    return res.status(500).json({ message: "Unable to fetch questions." });
+    // เพิ่ม logging เพื่อ debug
+    console.log("Attempting to fetch questions...");
+    console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
+    
+    result = await connectionPool.query("SELECT * FROM questions ORDER BY created_at DESC");
+    console.log("Query result:", result.rows.length, "questions found");
+    
+  } catch (error) {
+    console.error("Database error:", error.message);
+    console.error("Error code:", error.code);
+    return res.status(500).json({ 
+      message: "Unable to fetch questions.",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
   return res.status(200).json({ data: result.rows });
 });
