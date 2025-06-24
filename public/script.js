@@ -25,9 +25,16 @@ document.addEventListener("DOMContentLoaded", loadQuestions);
 questionForm.addEventListener("submit", handleQuestionSubmit);
 answerForm.addEventListener("submit", handleAnswerSubmit);
 searchBtn.addEventListener("click", handleSearch);
-clearBtn.addEventListener("click", loadQuestions);
+clearBtn.addEventListener("click", handleClearSearch); // แก้ไขฟังก์ชัน clear
 closeModal.addEventListener("click", closeQuestionModal);
 answerContent.addEventListener("input", updateCharCount);
+
+// เพิ่ม Enter key support สำหรับ search
+searchInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    handleSearch();
+  }
+});
 
 // Close modal when clicking outside
 window.addEventListener("click", (e) => {
@@ -252,35 +259,41 @@ function displayAnswers(answers) {
     `;
 }
 
-// Handle search
+// Handle search (แก้ไขฟังก์ชันนี้)
 async function handleSearch() {
   const query = searchInput.value.trim();
+  
+  console.log("Search triggered with query:", query);
 
   if (!query) {
-    showMessage("Please enter a search term", "error");
+    loadQuestions();
     return;
   }
 
   try {
     questionsList.innerHTML = '<div class="loading">Searching...</div>';
+    
+    // ค้นหาทั้ง title และ category
+    const searchUrl = `${API_BASE_URL}/questions/search?title=${encodeURIComponent(query)}&category=${encodeURIComponent(query)}`;
+    console.log("Making request to:", searchUrl);
 
-    const response = await fetch(
-      `${API_BASE_URL}/questions/search?title=${encodeURIComponent(
-        query
-      )}&category=${encodeURIComponent(query)}`
-    );
+    const response = await fetch(searchUrl);
+    console.log("Response status:", response.status);
+    
     const data = await response.json();
+    console.log("Response data:", data);
 
     if (response.ok && data.data && data.data.length > 0) {
       displayQuestions(data.data);
     } else {
-      questionsList.innerHTML =
-        '<div class="loading">No questions found matching your search.</div>';
+      questionsList.innerHTML = `
+        <div class="loading">No questions found matching "${escapeHtml(query)}".</div>
+      `;
     }
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Search error:", error);
     questionsList.innerHTML =
-      '<div class="loading error">Error searching questions</div>';
+      '<div class="loading error">Error searching questions. Please try again.</div>';
   }
 }
 
@@ -290,6 +303,12 @@ function closeQuestionModal() {
   currentQuestionId = null;
   answerForm.reset();
   updateCharCount();
+}
+
+// Handle clear search
+function handleClearSearch() {
+  searchInput.value = "";
+  loadQuestions();
 }
 
 // Update character count

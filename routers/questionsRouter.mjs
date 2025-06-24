@@ -243,27 +243,77 @@ const questionRouter = Router();
  *         description: Unable to fetch questions
  */
 
+// แก้ไข search route
+questionRouter.get("/search", async (req, res, next) => {
+  try {
+    const { title, category } = req.query;
+    
+    console.log("Search request received:", { title, category });
+    
+    let query = "SELECT * FROM questions WHERE 1=1";
+    const values = [];
+    let paramCounter = 1;
+
+    // ถ้ามี title หรือ category เหมือนกัน ให้ค้นหาทั้งสองแบบ (OR condition)
+    if (title && category && title === category) {
+      query += ` AND (title ILIKE $${paramCounter} OR category ILIKE $${paramCounter + 1})`;
+      values.push(`%${title}%`);
+      values.push(`%${category}%`);
+      paramCounter += 2;
+    } else {
+      // ถ้าแยกกันให้ใช้ AND condition
+      if (title) {
+        query += ` AND title ILIKE $${paramCounter}`;
+        values.push(`%${title}%`);
+        paramCounter++;
+      }
+
+      if (category) {
+        query += ` AND category ILIKE $${paramCounter}`;
+        values.push(`%${category}%`);
+        paramCounter++;
+      }
+    }
+
+    query += " ORDER BY created_at DESC";
+
+    console.log("SQL Query:", query, "Values:", values);
+
+    const result = await connectionPool.query(query, values);
+
+    return res.json({
+      message: "Search completed successfully",
+      data: result.rows
+    });
+  } catch (error) {
+    console.error("Search error:", error);
+    next(error);
+  }
+});
+
+// GET all questions
 questionRouter.get("/", async (req, res) => {
   let result;
   try {
-    // เพิ่ม logging เพื่อ debug
     console.log("Attempting to fetch questions...");
     console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
-    
-    result = await connectionPool.query("SELECT * FROM questions ORDER BY created_at DESC");
+
+    result = await connectionPool.query(
+      "SELECT * FROM questions ORDER BY created_at DESC"
+    );
     console.log("Query result:", result.rows.length, "questions found");
-    
   } catch (error) {
     console.error("Database error:", error.message);
     console.error("Error code:", error.code);
-    return res.status(500).json({ 
+    return res.status(500).json({
       message: "Unable to fetch questions.",
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
   return res.status(200).json({ data: result.rows });
 });
 
+// GET single question - ต้องมาหลัง /search
 questionRouter.get("/:questionId", async (req, res) => {
   const { questionId } = req.params;
   let result;
@@ -281,6 +331,7 @@ questionRouter.get("/:questionId", async (req, res) => {
   return res.status(200).json({ data: result.rows[0] });
 });
 
+// POST new question
 questionRouter.post("/", async (req, res) => {
   const { title, description, category } = req.body;
   if (!title || !description || !category) {
@@ -297,6 +348,7 @@ questionRouter.post("/", async (req, res) => {
   return res.status(201).json({ message: "Question created successfully." });
 });
 
+// PUT update question
 questionRouter.put("/:questionId", async (req, res) => {
   const { questionId } = req.params;
   const { title, description, category } = req.body;
@@ -318,6 +370,7 @@ questionRouter.put("/:questionId", async (req, res) => {
   return res.status(200).json({ message: "Question updated successfully." });
 });
 
+// DELETE question
 questionRouter.delete("/:questionId", async (req, res) => {
   const { questionId } = req.params;
   try {
@@ -340,23 +393,6 @@ questionRouter.delete("/:questionId", async (req, res) => {
   } catch (error) {
     await connectionPool.query("ROLLBACK");
     return res.status(500).json({ message: "Unable to delete question." });
-  }
-});
-
-questionRouter.get("/search", async (req, res) => {
-  const categoryParam = req.query.category ? `%${req.query.category}%` : null;
-  const titleParam = req.query.title ? `%${req.query.title}%` : null;
-  try {
-    if (!categoryParam && !titleParam) {
-      return res.status(400).json({ message: "Invalid search parameters." });
-    }
-    const result = await connectionPool.query(
-      "SELECT * FROM questions WHERE ($1::text IS NULL OR category ILIKE $1) AND ($2::text IS NULL OR title ILIKE $2)",
-      [categoryParam, titleParam]
-    );
-    return res.status(200).json({ data: result.rows });
-  } catch {
-    return res.status(500).json({ message: "Unable to fetch questions." });
   }
 });
 
